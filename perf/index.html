@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simul Benchmark</title>
+<link rel="icon" href="data:,">
+<script src="%BASE_URL%coi.js"></script>
+<style>
+  :root {
+    --bg: #fafaf9; --card: #ffffff; --ink: #1a1a19; --ink2: #6b6a66; --line: #e6e5e1;
+    --accent: #1a1a19; --accent-ink: #ffffff; --good: #1f7a4d; --warn: #b4570a; --bar: #ecebe7; --fill: #1a1a19;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f0f0e; --card: #171716; --ink: #eeede9; --ink2: #9a988f; --line: #2a2a27;
+      --accent: #eeede9; --accent-ink: #0f0f0e; --good: #5fcf95; --warn: #f0a35c; --bar: #262624; --fill: #eeede9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f0f0e; --card: #171716; --ink: #eeede9; --ink2: #9a988f; --line: #2a2a27;
+    --accent: #eeede9; --accent-ink: #0f0f0e; --good: #5fcf95; --warn: #f0a35c; --bar: #262624; --fill: #eeede9;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif }
+  main { max-width: 1040px; margin: 0 auto; padding: 28px 16px 64px }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 20px }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -.01em }
+  .sub { color: var(--ink2); margin: 2px 0 0 }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 14px }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink2); margin: 0 0 12px; font-weight: 600 }
+  label { display: block; font-size: 12px; color: var(--ink2); margin-bottom: 4px }
+  select, input { width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; font: inherit }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end }
+  button { font: inherit; font-weight: 600; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 7px 14px; cursor: pointer; white-space: nowrap }
+  button.ghost { background: transparent; color: var(--ink) ; border-color: var(--line) }
+  .btnlink { font-weight: 600; border-radius: 6px; border: 1px solid var(--line); color: var(--ink); padding: 7px 14px; text-decoration: none; white-space: nowrap }
+  button:disabled { opacity: .4; cursor: not-allowed }
+  .status { margin-top: 10px; color: var(--ink2); font-size: 13px; min-height: 1.5em }
+  .status.warn { color: var(--warn) }
+  .progress { height: 3px; background: var(--bar); border-radius: 2px; overflow: hidden; margin-top: 8px; visibility: hidden }
+  .progress > div { height: 100%; width: 0; background: var(--fill) }
+  .stats { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 12px }
+  .stat b { display: block; font-size: 18px; font-variant-numeric: tabular-nums }
+  .stat span { font-size: 12px; color: var(--ink2) }
+  .scroll { overflow-x: auto }
+  table { border-collapse: collapse; width: 100%; font-size: 13px }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top }
+  th { color: var(--ink2); font-weight: 600; font-size: 12px }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums }
+  .note { font-size: 12px; color: var(--ink2); margin: 10px 0 0 }
+  .projection { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); font-size: 13px }
+  .projection b { font-variant-numeric: tabular-nums }
+  .cell .top { font-weight: 600 }
+  .cell .p { color: var(--ink2); font-variant-numeric: tabular-nums }
+  .mini { display: grid; grid-template-columns: 70px 1fr 38px; gap: 6px; align-items: center; font-size: 12px; color: var(--ink2); margin-top: 3px }
+  .mini .track { height: 5px; background: var(--bar); border-radius: 3px; overflow: hidden }
+  .mini .fill { height: 100%; background: var(--fill); opacity: .35 }
+  .mini.top .fill { opacity: 1 } .mini.top { color: var(--ink) }
+  .mini .v { text-align: right; font-variant-numeric: tabular-nums }
+  .tag { display: inline-block; font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--ink2); margin: 0 4px 4px 0 }
+  .spread { font-size: 12px; color: var(--ink2); font-weight: 400 }
+  .spread b { color: var(--ink) }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Laya benchmark</h1>
+      <p class="sub">Checks how fast Laya decides in this browser, and whether personality changes what it decides.</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a class="ghost btnlink" href="%BASE_URL%">← Simul</a>
+      <button class="ghost" id="themeBtn" title="Theme">Theme: system</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>1 · Load model</h2>
+    <div class="row">
+      <div><label for="base">Checkpoint</label>
+        <select id="base">
+          <option value="general">Laya (general)</option>
+          <option value="typed">Laya (typed decisions)</option>
+        </select></div>
+      <div><label for="build">Build · backend</label>
+        <select id="build">
+          <option value="q8e8|wasm">int8 (~440 MB) · WASM</option>
+          <option value="q4e8|wasm">int4 (~290 MB) · WASM</option>
+          <option value="q4e8|webgpu">int4 (~290 MB) · WebGPU</option>
+        </select></div>
+      <div><label for="threads">WASM threads</label><input id="threads" type="number" min="1" max="16"></div>
+      <div><button id="loadBtn">Load model</button></div>
+    </div>
+    <div class="progress" id="progress"><div id="progressBar"></div></div>
+    <div class="status" id="loadStatus">Not loaded. The first load downloads the model from Hugging Face; after that it comes from the browser cache.</div>
+    <div class="stats" id="env"></div>
+  </section>
+
+  <section class="card">
+    <h2>2 · Speed</h2>
+    <div class="row">
+      <div><label for="runs">Runs per batch size</label><input id="runs" type="number" value="10" min="1" max="200"></div>
+      <div><label for="sizes">Batch sizes (decisions per call)</label><input id="sizes" value="1, 4, 8, 16"></div>
+      <div><label for="population">Population</label><input id="population" type="number" value="5000" min="1"></div>
+      <div><button id="speedBtn" disabled>Run speed test</button></div>
+    </div>
+    <div class="status" id="speedStatus"></div>
+    <div class="scroll"><table id="speedTable" hidden>
+      <thead><tr><th>Batch</th><th class="num">p50 ms / call</th><th class="num">p95 ms / call</th><th class="num">min</th><th class="num">max</th><th class="num">ms / decision</th><th class="num">decisions / hour</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="projection" id="projection" hidden></div>
+    <p class="note">Each decision is one 5-option choice question over a ~120-token person + situation text, the realistic size for a person's state. Timing covers tokenizing plus inference, measured with <code>performance.now()</code>. The model runs on the main thread here, so the page stutters during calls; the simulator will run it in a Web Worker.</p>
+  </section>
+
+  <section class="card">
+    <h2>3 · Personality test</h2>
+    <p class="sub" style="margin:0 0 12px">Same situation, four different people. If Laya understands personality, their answers should differ in ways that make sense.</p>
+    <div class="actions" style="margin-top:0;align-items:center">
+      <button id="personaBtn" disabled>Run personality test</button>
+      <label style="display:flex;gap:6px;align-items:center;margin:0;font-size:13px;color:var(--ink)"><input type="checkbox" id="reverse" style="width:auto"> Reverse option order (checks whether the model just favours the first option)</label>
+    </div>
+    <div class="status" id="personaStatus"></div>
+    <div id="personaOut"></div>
+  </section>
+
+  <section class="card">
+    <h2>Results</h2>
+    <div class="actions" style="margin-top:0">
+      <button class="ghost" id="copyBtn" disabled>Copy results as JSON</button>
+    </div>
+    <p class="note">Paste the JSON back to Claude to size the simulation.</p>
+  </section>
+</main>
+<script type="module" src="./bench.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simul</title>
+<link rel="icon" href="data:,">
+<script src="%BASE_URL%coi.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Simul</div>
+
+  <div class="group">
+    <label for="population">People</label>
+    <input id="population" type="number" min="10" max="2000" step="10" value="50">
+    <button id="generate" class="ghost" disabled>Regenerate</button>
+  </div>
+
+  <div class="group">
+    <button id="play" class="ghost" title="Space">Pause</button>
+    <select id="speed" title="Maximum sim time per real second (the clock also waits for Laya)">
+      <option value="1">1 min / s</option>
+      <option value="10" selected>10 min / s</option>
+      <option value="60">1 hour / s</option>
+      <option value="360">6 hours / s</option>
+    </select>
+    <span id="clock" class="clock"></span>
+  </div>
+
+  <div class="group">
+    <select id="tool" title="Pick a disaster, then click the map">
+      <option value="">Drop a disaster…</option>
+      <option value="bomb">💣 Bomb</option>
+      <option value="earthquake">Earthquake</option>
+      <option value="flood">Flood</option>
+      <option value="fire">Wildfire</option>
+    </select>
+    <select id="by" title="Who dropped the bomb" hidden></select>
+    <span id="toolHint" class="muted small" hidden>click the map to drop it</span>
+    <button id="toolCancel" class="ghost" hidden>Cancel</button>
+  </div>
+
+  <div class="spacer"></div>
+  <a class="ghost btn" href="%BASE_URL%perf/">Perf</a>
+  <button id="theme" class="ghost">Theme</button>
+</header>
+
+<main class="stage">
+  <div class="mapwrap">
+    <canvas id="map"></canvas>
+    <div class="laya" id="laya"></div>
+    <div class="headlines" id="headlines"></div>
+    <div class="perf" id="perf"></div>
+    <div class="legend" id="legend"></div>
+    <div class="hint">Scroll to zoom · drag to pan · click a person or country</div>
+  </div>
+  <aside class="side" id="side"></aside>
+</main>
+
+<div class="start" id="start">
+  <div class="start-card">
+    <h1>Simul</h1>
+    <p class="muted">Every person and every government decides with <b>Laya</b>, a small decision model running on your device. Nothing leaves your browser.</p>
+    <div class="fields">
+      <label>People <input id="startPop" type="number" value="50" min="10" max="2000" step="10"></label>
+      <label>Model
+        <select id="startBase">
+          <option value="typed" selected>Laya (typed decisions, recommended)</option>
+          <option value="general">Laya (general)</option>
+        </select>
+      </label>
+      <label>Build
+        <select id="startBuild">
+          <option value="q4e8|wasm" selected>int4 · CPU (~290 MB, works everywhere)</option>
+          <option value="q8e8|wasm">int8 · CPU (~440 MB, a little more accurate)</option>
+          <option value="q4e8|webgpu">int4 · GPU (~290 MB, experimental)</option>
+        </select>
+      </label>
+    </div>
+    <p class="estimate" id="startEstimate"></p>
+    <button id="startBtn">Start</button>
+    <div class="bar-line"><div id="startBar"></div></div>
+    <p class="muted small" id="startStatus">The first start downloads the model. After that it loads from the browser cache.</p>
+    <a class="small" href="%BASE_URL%perf/">Measure this device on the benchmark page →</a>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
