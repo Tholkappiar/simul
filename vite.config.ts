@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 // The built site is served from https://<user>.github.io/simul/, so its files live under /simul/.
 // Locally (npm run dev) it stays at /.
 const PAGES_BASE = "/simul/";
+// Cloudflare Web Analytics (visitor counts). Only added to the built site: Cloudflare rejects reports from localhost.
+const CLOUDFLARE_TOKEN = "8bb9fd59ab404365bbd6c190de276af3";
 
 // Cross-origin isolation lets ONNX Runtime use multithreaded WASM. GitHub Pages can't send these
 // headers, so public/coi-sw.js adds them there instead.
@@ -22,11 +24,22 @@ export default defineConfig(({ command }) => {
   return {
     base,
     appType: "mpa",
-    plugins: [{
-      name: "perf-redirect",
-      configureServer: (server) => { server.middlewares.use(perfRedirect); },
-      configurePreviewServer: (server) => { server.middlewares.use(perfRedirect); },
-    }],
+    plugins: [
+      {
+        name: "perf-redirect",
+        configureServer: (server) => { server.middlewares.use(perfRedirect); },
+        configurePreviewServer: (server) => { server.middlewares.use(perfRedirect); },
+      },
+      {
+        name: "cloudflare-analytics",
+        apply: "build",
+        transformIndexHtml: () => [{
+          tag: "script",
+          attrs: { type: "module", src: "https://static.cloudflareinsights.com/beacon.min.js", "data-cf-beacon": JSON.stringify({ token: CLOUDFLARE_TOKEN }) },
+          injectTo: "head",
+        }],
+      },
+    ],
     server: { headers: isolation },
     preview: { headers: isolation },
     worker: { format: "es" },
