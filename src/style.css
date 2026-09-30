@@ -145,7 +145,8 @@ button.link:hover { text-decoration: underline }
 .start-card .estimate { font-size: 12px; margin: 0 0 14px }
 .start-card #startBtn { width: 100%; padding: 9px }
 .start-card a { color: var(--ink2) }
-.bar-line { height: 3px; background: var(--bar); border-radius: 2px; overflow: hidden; margin-top: 12px }
+.start-card .badge { margin-top: 14px }
+.start-card .badge a { text-decoration: none }.bar-line { height: 3px; background: var(--bar); border-radius: 2px; overflow: hidden; margin-top: 12px }
 .bar-line > div { height: 100%; width: 0; background: var(--accent); transition: width .2s }
 select:disabled, input:disabled { opacity: .6 }
 

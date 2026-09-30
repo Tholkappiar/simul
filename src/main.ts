@@ -32,7 +32,6 @@ function renderEstimate() {
 }
 $<HTMLInputElement>("startPop").oninput = renderEstimate;
 renderEstimate();
-
 $("startBtn").onclick = () => {
   const [variant, backend] = $<HTMLSelectElement>("startBuild").value.split("|") as [LoadOptions["variant"], Backend];
   ai.load({ base: $<HTMLSelectElement>("startBase").value as ModelBase, variant, backend, threads: Math.min(4, navigator.hardwareConcurrency || 2) });
