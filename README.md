@@ -1,5 +1,7 @@
 # Simul
 
+[![Listed on laya.tools](https://laya.tools/badge.svg)](https://laya.tools/p/tholkappiargithubiosimul)
+
 A civilisation simulator where every person and every government makes decisions with a small AI model running entirely in your browser.
 
 **Live:** https://tholkappiar.github.io/simul/
